@@ -199,3 +199,14 @@ body {
   .sidebar { max-height: none; }
   .map { min-height: 55vh; }
 }
+
+.leaflet-popup.district-popup-wrap .leaflet-popup-content {
+  margin: 10px 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.district-popup-value {
+  font-weight: 600;
+  color: var(--text, #1a1a1a);
+}

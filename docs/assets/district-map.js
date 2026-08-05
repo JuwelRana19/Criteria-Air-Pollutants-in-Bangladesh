@@ -13,6 +13,7 @@ let datesByYear = {};
 let currentPollutant = "pm25";
 let pollutantMeta = {};
 let colorMin = 0, colorMax = 100;
+let selectedLayer = null;
 
 const el = (id) => document.getElementById(id);
 
@@ -100,15 +101,50 @@ function getValue(props) {
   return isFinite(v) ? v : null;
 }
 
-function styleFeature(feature) {
+function baseStyle(feature, selected) {
   const v = getValue(feature.properties);
   return {
     fillColor: v != null ? colorScale(v, colorMin, colorMax) : "#cccccc",
-    weight: 1.2,
+    weight: selected ? 3.5 : 1.2,
     opacity: 1,
-    color: "#222222",
-    fillOpacity: 0.8
+    color: selected ? "#ffffff" : "#222222",
+    fillOpacity: selected ? 0.95 : 0.8
   };
+}
+
+function styleFeature(feature) {
+  const selected =
+    selectedLayer?.feature?.properties?.district_id === feature.properties.district_id;
+  return baseStyle(feature, selected);
+}
+
+function popupContent(p, v) {
+  const val = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
+  return (
+    "<div class=\"district-popup\">" +
+    "<strong>" + (p.district || "—") + "</strong><br/>" +
+    (p.division || "—") + "<br/>" +
+    "<span class=\"district-popup-value\">" + pollutantLabel() + ": " + val + "</span>" +
+    "</div>"
+  );
+}
+
+function updateSidebar(p, v) {
+  el("district-val").textContent = p.district || "—";
+  el("division-val").textContent = p.division || "—";
+  el("pm-val").textContent = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
+}
+
+function selectDistrict(layer, p, v) {
+  if (selectedLayer && selectedLayer !== layer) {
+    selectedLayer.setStyle(baseStyle(selectedLayer.feature, false));
+  }
+  selectedLayer = layer;
+  layer.setStyle(baseStyle(layer.feature, true));
+  if (typeof layer.bringToFront === "function") layer.bringToFront();
+  layer.setPopupContent(popupContent(p, v));
+  layer.openPopup();
+  updateSidebar(p, v);
 }
 
 function onEachFeature(feature, layer) {
@@ -118,10 +154,13 @@ function onEachFeature(feature, layer) {
     `<strong>${p.district || "—"}</strong><br/>${v != null ? v.toFixed(1) + " " + pollutantUnit() : "no data"}`,
     { sticky: true }
   );
-  layer.on("click", () => {
-    el("district-val").textContent = p.district || "—";
-    el("division-val").textContent = p.division || "—";
-    el("pm-val").textContent = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
+  layer.bindPopup(popupContent(p, v), {
+    closeButton: true,
+    className: "district-popup-wrap"
+  });
+  layer.on("click", (e) => {
+    if (e.originalEvent) L.DomEvent.stopPropagation(e);
+    selectDistrict(layer, p, v);
   });
 }
 
@@ -183,6 +222,7 @@ async function refreshMap() {
   };
 
   if (districtLayer) map.removeLayer(districtLayer);
+  selectedLayer = null;
   districtLayer = L.geoJSON(geo, {
     style: styleFeature,
     onEachFeature: onEachFeature
