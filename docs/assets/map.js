@@ -24,16 +24,16 @@ function dateToFile(dateIso) {
 }
 
 async function loadManifest() {
-  const res = await fetch(`${DATA_BASE}manifest.json`);
-  if (!res.ok) throw new Error("manifest.json not found — run export_web_pm25() in R first");
-  return res.json();
+  const bundle = window.__GRID_MAP_BUNDLE__;
+  if (!bundle?.manifest) throw new Error("Map data failed to load.");
+  return bundle.manifest;
 }
 
 async function loadMonth(dateIso) {
   el("load-status").textContent = "Loading " + dateIso + "…";
-  const res = await fetch(dateToFile(dateIso));
-  if (!res.ok) throw new Error("Missing data file for " + dateIso);
-  const data = await res.json();
+  const bundle = window.__GRID_MAP_BUNDLE__;
+  const data = bundle?.months?.[dateIso];
+  if (!data) throw new Error("No data for " + dateIso);
   el("load-status").textContent = `${data.n.toLocaleString()} cells · ${dateIso}`;
   return data;
 }

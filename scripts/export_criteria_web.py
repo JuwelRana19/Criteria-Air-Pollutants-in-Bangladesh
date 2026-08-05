@@ -142,6 +142,7 @@ def main() -> None:
     }
     (OUT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"Done: {len(dates_exported)} months, {manifest['n_districts']} districts")
+    print("Run: python scripts/bundle_web_data.py")
 
 
 if __name__ == "__main__":

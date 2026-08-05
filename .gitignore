@@ -1,0 +1,7 @@
+# Raw pollutant JSON — local only; bundled into docs/assets/*-data.js for deployment
+docs/data/criteria/values_*.json
+docs/data/criteria/manifest.json
+docs/data/district/values_*.json
+docs/data/district/manifest.json
+docs/data/pm25_*.json
+docs/data/manifest.json

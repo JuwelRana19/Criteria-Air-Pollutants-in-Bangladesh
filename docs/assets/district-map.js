@@ -1,6 +1,5 @@
 /* District choropleth — 6 criteria pollutants (2018–2024) */
 
-const DATA_BASE = "data/criteria/";
 const BOUNDARIES_URL = "data/district/boundaries.geojson";
 const BGD_CENTER = [23.685, 90.356];
 const BGD_ZOOM = 7;
@@ -78,9 +77,9 @@ function pollutantLabel() {
 
 async function loadManifest() {
   if (manifestCache) return manifestCache;
-  const res = await fetch(`${DATA_BASE}manifest.json`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Could not load pollutant manifest.");
-  manifestCache = await res.json();
+  const bundle = window.__DISTRICT_MAP_BUNDLE__;
+  if (!bundle?.manifest) throw new Error("Map data failed to load.");
+  manifestCache = bundle.manifest;
   manifestCache.pollutants.forEach((p) => {
     pollutantMeta[p.id] = p;
   });
@@ -127,12 +126,11 @@ function onEachFeature(feature, layer) {
 }
 
 async function loadMonthValues(dateIso) {
-  const [y, m] = dateIso.split("-");
-  const url = `${DATA_BASE}values_${y}_${m}.json`;
   el("load-status").textContent = "Loading " + dateIso.slice(0, 7) + "…";
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Missing file: " + url);
-  return res.json();
+  const bundle = window.__DISTRICT_MAP_BUNDLE__;
+  const monthData = bundle?.months?.[dateIso];
+  if (!monthData) throw new Error("No data for " + dateIso.slice(0, 7));
+  return monthData;
 }
 
 function renderStats(values) {
