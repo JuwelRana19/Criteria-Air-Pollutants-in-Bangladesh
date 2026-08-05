@@ -13,6 +13,7 @@ let datesByYear = {};
 let currentPollutant = "pm25";
 let pollutantMeta = {};
 let colorMin = 0, colorMax = 100;
+let currentMonthLookup = {};
 
 const el = (id) => document.getElementById(id);
 
@@ -96,7 +97,7 @@ async function loadBoundaries() {
 }
 
 function getValue(props) {
-  const v = parseFloat(props[currentPollutant] ?? props.value);
+  const v = parseFloat(props._v);
   return isFinite(v) ? v : null;
 }
 
@@ -113,15 +114,14 @@ function styleFeature(feature) {
 
 function onEachFeature(feature, layer) {
   const p = feature.properties;
-  const v = getValue(p);
-  layer.bindTooltip(
-    `<strong>${p.district || "—"}</strong><br/>${v != null ? v.toFixed(1) + " " + pollutantUnit() : "no data"}`,
-    { sticky: true }
-  );
+  layer.bindTooltip(`<strong>${p.district || "—"}</strong>`, { sticky: true });
   layer.on("click", () => {
+    const row = currentMonthLookup[p.district_id];
+    const v = row?.[currentPollutant];
     el("district-val").textContent = p.district || "—";
     el("division-val").textContent = p.division || "—";
-    el("pm-val").textContent = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
+    el("pm-val").textContent =
+      v != null && isFinite(v) ? v.toFixed(1) + " " + pollutantUnit() : "—";
   });
 }
 
@@ -133,22 +133,15 @@ async function loadMonthValues(dateIso) {
   return monthData;
 }
 
-function renderStats(values) {
+function renderLegendScale(values) {
   const nums = values
     .map((v) => v[currentPollutant])
     .filter((x) => x != null && isFinite(x));
   if (!nums.length) return;
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
-  colorMin = min;
-  colorMax = max;
-  el("month-stats").innerHTML =
-    "<strong>National summary</strong><br/>Min " +
-    min.toFixed(1) + " · Mean " + mean.toFixed(1) + " · Max " + max.toFixed(1) +
-    " " + pollutantUnit();
-  el("leg-min").textContent = min.toFixed(1);
-  el("leg-max").textContent = max.toFixed(1);
+  colorMin = Math.min(...nums);
+  colorMax = Math.max(...nums);
+  el("leg-min").textContent = colorMin.toFixed(1);
+  el("leg-max").textContent = colorMax.toFixed(1);
   el("legend-title").textContent = pollutantLabel() + " (" + pollutantUnit() + ")";
   el("value-label").textContent = pollutantLabel();
 }
@@ -160,24 +153,26 @@ async function refreshMap() {
     loadMonthValues(dateIso)
   ]);
 
-  renderStats(monthData.values);
+  renderLegendScale(monthData.values);
 
-  const byId = Object.fromEntries(monthData.values.map((row) => [row.district_id, row]));
+  currentMonthLookup = Object.fromEntries(
+    monthData.values.map((row) => [row.district_id, row])
+  );
+
+  const byId = currentMonthLookup;
 
   const geo = {
     type: "FeatureCollection",
     features: boundaries.features.map((feat) => {
       const row = byId[feat.properties.district_id] || {};
+      const v = row[currentPollutant];
       return {
         type: "Feature",
         properties: {
           district_id: feat.properties.district_id,
           district: row.district || feat.properties.district,
           division: row.division || feat.properties.division,
-          ...Object.fromEntries(
-            Object.keys(pollutantMeta).map((pid) => [pid, row[pid] ?? null])
-          ),
-          value: row[currentPollutant] ?? null
+          _v: v != null && isFinite(v) ? v : null
         },
         geometry: feat.geometry
       };
@@ -222,6 +217,9 @@ async function init() {
     polSel.value = currentPollutant;
     polSel.onchange = () => {
       currentPollutant = polSel.value;
+      el("district-val").textContent = "—";
+      el("division-val").textContent = "—";
+      el("pm-val").textContent = "—";
       refreshMap().catch(showError);
     };
 
@@ -246,9 +244,17 @@ async function init() {
 
     yearSel.onchange = () => {
       fillMonthOptions(yearSel.value);
+      el("district-val").textContent = "—";
+      el("division-val").textContent = "—";
+      el("pm-val").textContent = "—";
       refreshMap().catch(showError);
     };
-    el("month-select").onchange = () => refreshMap().catch(showError);
+    el("month-select").onchange = () => {
+      el("district-val").textContent = "—";
+      el("division-val").textContent = "—";
+      el("pm-val").textContent = "—";
+      refreshMap().catch(showError);
+    };
 
     await refreshMap();
   } catch (err) {
