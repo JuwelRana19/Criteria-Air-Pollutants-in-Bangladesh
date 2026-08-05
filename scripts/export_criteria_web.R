@@ -1,10 +1,13 @@
-# Export MortalityPM RDS (2018-2024, 6 criteria pollutants) for web map
+# Export district criteria pollutant RDS (2018-2024) for web map
 
 suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-rds_path <- "D:/OneDrive - SAIST Foundation/Research and Innovation/Research Project/Environment, Climate Change and Health Hub/Air Pollution and Mortality/MortalityPM_28082025.RDS"
+rds_path <- Sys.getenv(
+  "CRITERIA_POLLUTANTS_RDS",
+  unset = "D:/OneDrive - SAIST Foundation/Research and Innovation/Research Project/Environment, Climate Change and Health Hub/Air Pollution and Mortality/MortalityPM_28082025.RDS"
+)
 out_dir <- "docs/data/criteria"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -27,7 +30,6 @@ slugify <- function(x) {
 
 df$district_id <- paste(slugify(df$Division), slugify(df$District), sep = "_")
 df$district_id <- gsub("chittagong", "chittagong", df$district_id)
-# GADM uses cox's bazar -> cox_s_bazar
 df$district_id <- gsub("cox_s_bazar", "cox_s_bazar", df$district_id)
 df$district_id <- gsub("brahmanbaria", "brahamanbaria", df$district_id)
 
@@ -84,7 +86,7 @@ names(pollutant_meta) <- NULL
 
 manifest <- list(
   title = "Bangladesh District Criteria Air Pollutants",
-  subtitle = "64 districts · monthly · 2018–2024 · MortalityPM model",
+  subtitle = "64 districts · monthly · 2018–2024 · SAIST Foundation",
   level = "district",
   n_districts = length(unique(df$district_id)),
   years = sort(unique(df$year)),
@@ -95,7 +97,7 @@ manifest <- list(
   pollutant_stats = stats,
   boundaries = "../district/boundaries.geojson",
   data_pattern = "values_{year}_{month}.json",
-  source = "MortalityPM_28082025.RDS"
+  source = "SAIST Foundation"
 )
 
 write_json(manifest, file.path(out_dir, "manifest.json"), auto_unbox = TRUE, pretty = TRUE)

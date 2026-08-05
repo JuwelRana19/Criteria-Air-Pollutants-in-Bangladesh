@@ -1,19 +1,21 @@
-"""Export MortalityPM RDS (2018-2024, 6 criteria pollutants) for web choropleth."""
+"""Export district criteria pollutant RDS (2018-2024) for web choropleth."""
 
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
 import pyreadr
 
 ROOT = Path(__file__).resolve().parents[1]
-RDS_PATH = Path(
+DEFAULT_RDS = Path(
     r"D:/OneDrive - SAIST Foundation/Research and Innovation/Research Project"
     r"/Environment, Climate Change and Health Hub/Air Pollution and Mortality"
     r"/MortalityPM_28082025.RDS"
 )
+RDS_PATH = Path(os.environ.get("CRITERIA_POLLUTANTS_RDS", str(DEFAULT_RDS)))
 BOUNDARIES_PATH = ROOT / "docs/data/district/boundaries.geojson"
 OUT_DIR = ROOT / "docs/data/criteria"
 
@@ -69,7 +71,6 @@ def map_district_id(row, lookup: dict[tuple[str, str], str]) -> str:
     key = (div, dist)
     if key in lookup:
         return lookup[key]
-    # fallback: match district name only
     for (d_div, d_name), did in lookup.items():
         if d_name == dist:
             return did
@@ -124,7 +125,7 @@ def main() -> None:
     years = sorted(int(y) for y in df["year"].unique())
     manifest = {
         "title": "Bangladesh District Criteria Air Pollutants",
-        "subtitle": "64 districts · monthly · 2018–2024 · MortalityPM model",
+        "subtitle": "64 districts · monthly · 2018–2024 · SAIST Foundation",
         "level": "district",
         "n_districts": int(df["district_id"].nunique()),
         "years": years,
@@ -138,7 +139,7 @@ def main() -> None:
         "pollutant_stats": pollutant_stats,
         "boundaries": "../district/boundaries.geojson",
         "data_pattern": "values_{year}_{month}.json",
-        "source": "MortalityPM_28082025.RDS",
+        "source": "SAIST Foundation",
     }
     (OUT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"Done: {len(dates_exported)} months, {manifest['n_districts']} districts")

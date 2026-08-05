@@ -1,65 +1,129 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bangladesh District Criteria Pollutants | SAIST</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="assets/style.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="brand">
-      <h1>Bangladesh District Air Pollutants</h1>
-      <p class="subtitle">64 districts · monthly · 2018–2024 · MortalityPM model · SAIST Foundation</p>
-    </div>
-    <nav class="site-nav">
-      <a href="https://github.com/JuwelRana19/Criteria-Air-Pollutants-in-Bangladesh" target="_blank" rel="noopener">GitHub</a>
-      <a href="index.html">1 km grid map</a>
-    </nav>
-  </header>
-
-  <main class="layout">
-    <aside class="sidebar">
-      <section class="panel">
-        <h2>Monthly pollutants by district</h2>
-        <p id="date-range" class="date-range"></p>
-        <label for="pollutant-select">Pollutant</label>
-        <select id="pollutant-select" aria-label="Select pollutant"></select>
-        <div class="date-row">
-          <div>
-            <label for="year-select">Year</label>
-            <select id="year-select" aria-label="Select year"></select>
-          </div>
-          <div>
-            <label for="month-select">Month</label>
-            <select id="month-select" aria-label="Select month"></select>
-          </div>
-        </div>
-        <div class="meta-grid">
-          <div><span class="label">District</span><span id="district-val" class="value">—</span></div>
-          <div><span class="label">Division</span><span id="division-val" class="value">—</span></div>
-          <div><span class="label" id="value-label">Value</span><span id="pm-val" class="value">—</span></div>
-        </div>
-        <div id="month-stats" class="stats-box"></div>
-        <p class="hint">Click a district for details. District-level monthly means from the MortalityPM exposure model.</p>
-      </section>
-      <section class="panel legend-panel">
-        <h3 id="legend-title">Concentration</h3>
-        <div class="legend-bar" id="legend-bar"></div>
-        <div class="legend-labels"><span id="leg-min">—</span><span id="leg-max">—</span></div>
-      </section>
-    </aside>
-    <div id="map" class="map" role="application" aria-label="District air pollutant map"></div>
-  </main>
-
-  <footer class="site-footer">
-    <span>© SAIST Foundation · Criteria Air Pollutants in Bangladesh</span>
-    <span id="load-status">Loading…</span>
-  </footer>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/district-map.js?v=criteria-2018-2024"></script>
-</body>
-</html>
-
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Bangladesh District Criteria Pollutants | SAIST</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="assets/style.css" />
+
+</head>
+
+<body>
+
+  <header class="site-header">
+
+    <div class="brand">
+
+      <h1>Bangladesh District Air Pollutants</h1>
+
+      <p class="subtitle">64 districts · monthly · 2018–2024 · SAIST Foundation</p>
+
+    </div>
+
+    <nav class="site-nav">
+
+      <a href="https://github.com/JuwelRana19/Criteria-Air-Pollutants-in-Bangladesh" target="_blank" rel="noopener">GitHub</a>
+
+      <a href="index.html">1 km grid map</a>
+
+    </nav>
+
+  </header>
+
+
+
+  <main class="layout">
+
+    <aside class="sidebar">
+
+      <section class="panel">
+
+        <h2>Monthly pollutants by district</h2>
+
+        <p id="date-range" class="date-range"></p>
+
+        <label for="pollutant-select">Pollutant</label>
+
+        <select id="pollutant-select" aria-label="Select pollutant"></select>
+
+        <div class="date-row">
+
+          <div>
+
+            <label for="year-select">Year</label>
+
+            <select id="year-select" aria-label="Select year"></select>
+
+          </div>
+
+          <div>
+
+            <label for="month-select">Month</label>
+
+            <select id="month-select" aria-label="Select month"></select>
+
+          </div>
+
+        </div>
+
+        <div class="meta-grid">
+
+          <div><span class="label">District</span><span id="district-val" class="value">—</span></div>
+
+          <div><span class="label">Division</span><span id="division-val" class="value">—</span></div>
+
+          <div><span class="label" id="value-label">Value</span><span id="pm-val" class="value">—</span></div>
+
+        </div>
+
+        <div id="month-stats" class="stats-box"></div>
+
+        <p class="hint">Click a district for details. District-level monthly mean concentrations.</p>
+
+      </section>
+
+      <section class="panel legend-panel">
+
+        <h3 id="legend-title">Concentration</h3>
+
+        <div class="legend-bar" id="legend-bar"></div>
+
+        <div class="legend-labels"><span id="leg-min">—</span><span id="leg-max">—</span></div>
+
+      </section>
+
+    </aside>
+
+    <div id="map" class="map" role="application" aria-label="District air pollutant map"></div>
+
+  </main>
+
+
+
+  <footer class="site-footer">
+
+    <span>© SAIST Foundation · Criteria Air Pollutants in Bangladesh</span>
+
+    <span id="load-status">Loading…</span>
+
+  </footer>
+
+
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="assets/district-map.js?v=criteria-2018-2024"></script>
+
+</body>
+
+</html>
+
+
