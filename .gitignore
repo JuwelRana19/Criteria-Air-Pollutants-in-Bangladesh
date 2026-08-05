@@ -5,3 +5,5 @@ docs/data/district/values_*.json
 docs/data/district/manifest.json
 docs/data/pm25_*.json
 docs/data/manifest.json
+__pycache__/
+*.pyc
