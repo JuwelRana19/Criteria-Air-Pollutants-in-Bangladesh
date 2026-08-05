@@ -8,9 +8,7 @@ Interactive web map of six criteria air pollutant exposure by district in Bangla
 
 ## Data access
 
-The map is for **visual exploration only**. Downloadable datasets (CSV/RDS/GeoJSON exports) are **not** published in this repository.
-
-To request the underlying data, contact **juwelrana@saistbd.org**.
+For inquiries regarding dataset access or potential collaboration, please contact Juwel Rana at **juwelrana@saistbd.org**.
 
 ## Local preview
 
