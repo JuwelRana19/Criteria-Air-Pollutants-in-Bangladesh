@@ -22,11 +22,7 @@ cd docs
 python -m http.server 8080
 ```
 
-Open http://localhost:8080/district.html
-
 ## Data pipeline
-
-Extraction and export scripts live in the private [AP-Exposure-Surface-BD](https://github.com/JuwelRana19/AP-Exposure-Surface-BD) repository.
 
 Export flow:
 
