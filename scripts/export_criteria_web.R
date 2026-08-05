@@ -4,10 +4,10 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-rds_path <- Sys.getenv(
-  "CRITERIA_POLLUTANTS_RDS",
-  unset = "D:/OneDrive - SAIST Foundation/Research and Innovation/Research Project/Environment, Climate Change and Health Hub/Air Pollution and Mortality/MortalityPM_28082025.RDS"
-)
+rds_path <- Sys.getenv("CRITERIA_POLLUTANTS_RDS")
+if (!nzchar(rds_path)) {
+  stop("Set CRITERIA_POLLUTANTS_RDS to your district criteria pollutant RDS file.")
+}
 out_dir <- "docs/data/criteria"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 

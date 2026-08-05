@@ -10,12 +10,7 @@ from pathlib import Path
 import pyreadr
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_RDS = Path(
-    r"D:/OneDrive - SAIST Foundation/Research and Innovation/Research Project"
-    r"/Environment, Climate Change and Health Hub/Air Pollution and Mortality"
-    r"/MortalityPM_28082025.RDS"
-)
-RDS_PATH = Path(os.environ.get("CRITERIA_POLLUTANTS_RDS", str(DEFAULT_RDS)))
+RDS_PATH = Path(os.environ["CRITERIA_POLLUTANTS_RDS"])
 BOUNDARIES_PATH = ROOT / "docs/data/district/boundaries.geojson"
 OUT_DIR = ROOT / "docs/data/criteria"
 
@@ -78,6 +73,10 @@ def map_district_id(row, lookup: dict[tuple[str, str], str]) -> str:
 
 
 def main() -> None:
+    if not RDS_PATH.is_file():
+        raise FileNotFoundError(
+            "Set CRITERIA_POLLUTANTS_RDS to your district criteria pollutant RDS file."
+        )
     df = pyreadr.read_r(str(RDS_PATH))[None]
     boundaries = json.loads(BOUNDARIES_PATH.read_text(encoding="utf-8"))
     lookup = build_district_lookup(boundaries)
