@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bangladesh PM2.5 — 1 km Exposure Map | SAIST</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <h1>Bangladesh PM2.5 Exposure Surface</h1>
+      <p class="subtitle">1 km grid resolution · SatPM V6GL03 · SAIST Foundation</p>
+    </div>
+    <nav class="site-nav">
+      <a href="https://github.com/JuwelRana19/Criteria-Air-Pollutants-in-Bangladesh" target="_blank" rel="noopener">GitHub</a>
+      <a href="district.html">64 districts map</a>
+      <a href="https://sites.wustl.edu/acag/surface-pm2-5/" target="_blank" rel="noopener">Data source (ACAG/SatPM)</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>Daily PM2.5 distribution across Bangladesh</h2>
+        <label for="date-select">Select a date</label>
+        <select id="date-select" aria-label="Select date"></select>
+        <div class="meta-grid">
+          <div><span class="label">Latitude</span><span id="lat-val" class="value">—</span></div>
+          <div><span class="label">Longitude</span><span id="lon-val" class="value">—</span></div>
+          <div><span class="label">PM2.5</span><span id="pm-val" class="value">—</span></div>
+        </div>
+        <div id="month-stats" class="stats-box"></div>
+        <p class="hint">Move the cursor over the map to inspect grid-cell values. Monthly snapshots shown (SatPM monthly product).</p>
+      </section>
+      <section class="panel legend-panel">
+        <h3>PM2.5 (µg/m³)</h3>
+        <div class="legend-bar" id="legend-bar"></div>
+        <div class="legend-labels"><span id="leg-min">—</span><span id="leg-max">—</span></div>
+      </section>
+      <section class="panel">
+        <h3>About</h3>
+        <p class="about-text">
+          Interactive map of modelled fine particulate matter (PM<sub>2.5</sub>) on a ~1 km
+          Bangladesh grid. Built for the AP Exposure Surface project. Inspired by the
+          <a href="https://grasp.ldeo.columbia.edu/documents" target="_blank" rel="noopener">GRASP</a>
+          visualization framework.
+        </p>
+      </section>
+    </aside>
+
+    <div id="map" class="map" role="application" aria-label="PM2.5 map"></div>
+  </main>
+
+  <footer class="site-footer">
+    <span>© SAIST Foundation · AP Exposure Surface Bangladesh</span>
+    <span id="load-status">Loading…</span>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="assets/map.js"></script>
+</body>
+</html>
