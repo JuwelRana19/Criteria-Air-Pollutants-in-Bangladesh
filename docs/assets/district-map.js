@@ -9,6 +9,7 @@ let currentPollutant = "pm25";
 let pollutantMeta = {};
 let colorMin = 0, colorMax = 100;
 let selectedLayer = null;
+let layerById = {};
 
 const el = (id) => document.getElementById(id);
 
@@ -96,9 +97,52 @@ function popupContent(p, v) {
 }
 
 function updateSidebar(p, v) {
-  el("district-val").textContent = p.district || "—";
   el("division-val").textContent = p.division || "—";
   el("pm-val").textContent = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
+}
+
+function populateDistrictSelect(values) {
+  const sel = el("district-select");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = "— Select district —";
+  sel.appendChild(empty);
+  [...values]
+    .sort((a, b) => (a.district || "").localeCompare(b.district || ""))
+    .forEach((row) => {
+      const opt = document.createElement("option");
+      opt.value = row.district_id;
+      opt.textContent = row.district || row.district_id;
+      sel.appendChild(opt);
+    });
+  sel.value = prev && layerById[prev] ? prev : "";
+}
+
+function clearDistrictSelection() {
+  if (selectedLayer) {
+    selectedLayer.setStyle(baseStyle(selectedLayer.feature, false));
+    selectedLayer.closePopup();
+    selectedLayer = null;
+  }
+  el("district-select").value = "";
+  updateSidebar({ division: "—" }, null);
+}
+
+function selectDistrictById(districtId) {
+  if (!districtId) {
+    clearDistrictSelection();
+    return;
+  }
+  const layer = layerById[districtId];
+  if (!layer) return;
+  const p = layer.feature.properties;
+  selectDistrict(layer, p, getValue(p));
+  const bounds = layer.getBounds();
+  if (bounds.isValid()) {
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
+  }
 }
 
 function selectDistrict(layer, p, v) {
@@ -110,6 +154,7 @@ function selectDistrict(layer, p, v) {
   if (typeof layer.bringToFront === "function") layer.bringToFront();
   layer.setPopupContent(popupContent(p, v));
   layer.openPopup();
+  el("district-select").value = p.district_id || "";
   updateSidebar(p, v);
 }
 
@@ -189,10 +234,22 @@ async function refreshMap() {
 
   if (districtLayer) map.removeLayer(districtLayer);
   selectedLayer = null;
+  layerById = {};
   districtLayer = L.geoJSON(geo, {
     style: styleFeature,
     onEachFeature: onEachFeature
   }).addTo(map);
+  districtLayer.eachLayer((layer) => {
+    const id = layer.feature?.properties?.district_id;
+    if (id) layerById[id] = layer;
+  });
+
+  populateDistrictSelect(yearData.values);
+  if (el("district-select").value) {
+    selectDistrictById(el("district-select").value);
+  } else {
+    updateSidebar({ division: "—" }, null);
+  }
 
   const bounds = districtLayer.getBounds();
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20] });
@@ -244,6 +301,8 @@ async function init() {
       years[0] + "–" + years[years.length - 1] + " · annual averages";
 
     yearSel.onchange = () => refreshMap().catch(showError);
+
+    el("district-select").onchange = () => selectDistrictById(el("district-select").value);
 
     await refreshMap();
   } catch (err) {

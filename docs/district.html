@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bangladesh District Criteria Pollutants | SAIST</title>
+  <title>Six Criteria Air Pollutants Across Bangladesh | SAIST</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="brand">
-      <h1>Bangladesh District Air Pollutants</h1>
+      <h1>Six Criteria Air Pollutants Across Bangladesh</h1>
       <p class="subtitle">64 districts · annual average · 2018–2024 · SAIST Foundation</p>
     </div>
     <nav class="site-nav" aria-label="Site sections">
@@ -29,14 +29,16 @@
         <select id="pollutant-select" aria-label="Select pollutant"></select>
         <label for="year-select">Year</label>
         <select id="year-select" aria-label="Select year"></select>
+        <label for="district-select">District</label>
+        <select id="district-select" aria-label="Select district">
+          <option value="">— Select district —</option>
+        </select>
         <div class="meta-grid">
-          <div><span class="label">District</span><span id="district-val" class="value">—</span></div>
           <div><span class="label">Division</span><span id="division-val" class="value">—</span></div>
           <div><span class="label" id="value-label">Value</span><span id="pm-val" class="value">—</span></div>
         </div>
         <div id="month-stats" class="stats-box"></div>
-        <p class="hint">Click a district for details. District-level annual mean concentrations.</p>
-        <p class="data-access">This interactive map was based on six criteria pollutants exposure surface data products developed by the <a href="https://www.saistbd.org/" target="_blank" rel="noopener">South Asian Institute for Social Transformation (SAIST)</a>. For inquiries regarding dataset access or potential collaboration, please contact <a href="mailto:juwelrana@saistbd.org">juwelrana@saistbd.org</a>.</p>
+        <p class="hint">Select or click a district for details. District-level annual mean concentrations.</p>
       </section>
       <section class="panel legend-panel">
         <h3 id="legend-title">Concentration</h3>
@@ -54,6 +56,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="assets/district-data.js?v=annual"></script>
-  <script src="assets/district-map.js?v=annual"></script>
+  <script src="assets/district-map.js?v=district-select"></script>
 </body>
 </html>
