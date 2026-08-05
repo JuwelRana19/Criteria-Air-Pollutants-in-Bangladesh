@@ -6,6 +6,8 @@ Interactive web map of six criteria air pollutant exposure by district in Bangla
 
 **District map (64 districts, monthly, 2018–2024):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
 
+**Team members:** [team.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/team.html)
+
 ## Data access
 
 For inquiries regarding dataset access or potential collaboration, please contact Juwel Rana at **juwelrana@saistbd.org**.
