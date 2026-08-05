@@ -41,6 +41,15 @@ def bundle_district() -> None:
     print(f"Wrote {out.name} ({len(months)} months, {out.stat().st_size // 1024} KB)")
 
 
+def normalize_manifest_dates(manifest: dict) -> dict:
+    dates = manifest.get("dates")
+    if isinstance(dates, str):
+        manifest = {**manifest, "dates": [dates]}
+    elif dates is None:
+        manifest = {**manifest, "dates": []}
+    return manifest
+
+
 def bundle_grid() -> None:
     data_dir = DOCS / "data"
     manifest_path = data_dir / "manifest.json"
@@ -48,7 +57,9 @@ def bundle_grid() -> None:
         print("No grid manifest — skipping grid-data.js")
         return
 
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest = normalize_manifest_dates(
+        json.loads(manifest_path.read_text(encoding="utf-8"))
+    )
     months: dict[str, dict] = {}
 
     for path in sorted(data_dir.glob("pm25_*.json")):
@@ -73,7 +84,10 @@ def bundle_grid() -> None:
 
 def main() -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
-    bundle_district()
+    try:
+        bundle_district()
+    except FileNotFoundError as err:
+        print(f"Skip district bundle: {err}")
     bundle_grid()
 
 

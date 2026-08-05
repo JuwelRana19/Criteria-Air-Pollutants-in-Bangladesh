@@ -1,26 +1,30 @@
-/* Bangladesh PM2.5 interactive map — GRASP-style viewer */
+/* Bangladesh PM2.5 interactive map — 1 km grid viewer */
 
 const DATA_BASE = "data/";
+const DIVISIONS_URL = "data/district/divisions.geojson";
 const BGD_CENTER = [23.685, 90.356];
 const BGD_ZOOM = 7;
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
-let map, heatLayer, boundaryLayer, currentData = null;
+let map, heatLayer, boundaryLayer, divisionLayer = null, currentData = null;
 let colorMin = 15, colorMax = 80;
+let spatialIndex = null;
 
 const el = (id) => document.getElementById(id);
 
-function pm25ToColor(v, minV, maxV) {
-  const t = Math.max(0, Math.min(1, (v - minV) / (maxV - minV || 1)));
-  // viridis-like: purple -> teal -> yellow
-  const r = Math.round(68 + t * (253 - 68));
-  const g = Math.round(1 + t * (231 - 1));
-  const b = Math.round(84 + (1 - Math.abs(t - 0.5) * 2) * 100);
-  return `rgb(${r},${g},${b})`;
+function manifestDates(manifest) {
+  const dates = manifest?.dates;
+  if (Array.isArray(dates)) return dates;
+  if (typeof dates === "string" && dates) return [dates];
+  return [];
 }
 
-function dateToFile(dateIso) {
+function formatMonthLabel(dateIso) {
   const [y, m] = dateIso.split("-");
-  return `${DATA_BASE}pm25_${y}_${m}.json`;
+  return MONTH_NAMES[Number(m) - 1] + " " + y;
 }
 
 async function loadManifest() {
@@ -30,21 +34,20 @@ async function loadManifest() {
 }
 
 async function loadMonth(dateIso) {
-  el("load-status").textContent = "Loading " + dateIso + "…";
+  el("load-status").textContent = "Loading " + dateIso.slice(0, 7) + "…";
   const bundle = window.__GRID_MAP_BUNDLE__;
   const data = bundle?.months?.[dateIso];
-  if (!data) throw new Error("No data for " + dateIso);
-  el("load-status").textContent = `${data.n.toLocaleString()} cells · ${dateIso}`;
+  if (!data) throw new Error("No data for " + dateIso.slice(0, 7));
+  el("load-status").textContent = `${data.n.toLocaleString()} cells · ${dateIso.slice(0, 7)}`;
   return data;
 }
 
 function renderStats(stats) {
   if (!stats) return;
-  el("month-stats").innerHTML = `
-    <strong>Month summary</strong><br/>
-    Min ${stats.min} · Mean ${stats.mean} · Median ${stats.median}<br/>
-    Max ${stats.max} · 95th pct ${stats.q95}
-  `;
+  el("month-stats").innerHTML =
+    "<strong>Month summary</strong><br/>Min " +
+    stats.min + " · Mean " + stats.mean + " · Median " + stats.median +
+    "<br/>Max " + stats.max + " · 95th pct " + stats.q95;
   colorMin = Math.max(0, stats.q05 || stats.min);
   colorMax = stats.q95 || stats.max;
   el("leg-min").textContent = colorMin.toFixed(1);
@@ -72,10 +75,10 @@ function buildHeatLayer(data) {
     }
   }).addTo(map);
 
-  // Invisible canvas-friendly circles for hover lookup (sample for performance)
-  // Use nearest-neighbour on mousemove against full point set
   currentData = data;
   spatialIndex = buildSpatialIndex(data);
+  if (divisionLayer) divisionLayer.bringToFront();
+  if (boundaryLayer) boundaryLayer.bringToFront();
 }
 
 function buildSpatialIndex(data, cellDeg = 0.05) {
@@ -88,8 +91,6 @@ function buildSpatialIndex(data, cellDeg = 0.05) {
   }
   return { index, cellDeg };
 }
-
-let spatialIndex = null;
 
 function nearestPoint(lat, lng) {
   if (!spatialIndex) return null;
@@ -120,7 +121,7 @@ async function onDateChange(dateIso) {
     renderStats(data.stats);
     buildHeatLayer(data);
     const b = data.bounds;
-    if (b && boundaryLayer) {
+    if (b) {
       map.fitBounds([[b.south, b.west], [b.north, b.east]], { padding: [20, 20] });
     }
   } catch (err) {
@@ -132,7 +133,7 @@ async function onDateChange(dateIso) {
 function initMap() {
   map = L.map("map", { zoomControl: true }).setView(BGD_CENTER, BGD_ZOOM);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors",
+    attribution: "© OpenStreetMap · GADM",
     maxZoom: 18
   }).addTo(map);
 
@@ -147,15 +148,27 @@ function initMap() {
     })
     .catch(() => {});
 
+  fetch(DIVISIONS_URL)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((geo) => {
+      if (!geo) return;
+      divisionLayer = L.geoJSON(geo, {
+        style: {
+          fillOpacity: 0,
+          color: "#0f172a",
+          weight: 2.8,
+          opacity: 0.92
+        },
+        interactive: false
+      }).addTo(map);
+    })
+    .catch(() => {});
+
   map.on("mousemove", (e) => {
     const pt = nearestPoint(e.latlng.lat, e.latlng.lng);
     el("lat-val").textContent = e.latlng.lat.toFixed(3);
     el("lon-val").textContent = e.latlng.lng.toFixed(3);
-    if (pt) {
-      el("pm-val").textContent = pt[2].toFixed(1) + " µg/m³";
-    } else {
-      el("pm-val").textContent = "—";
-    }
+    el("pm-val").textContent = pt ? pt[2].toFixed(1) + " µg/m³" : "—";
   });
 }
 
@@ -163,21 +176,31 @@ async function init() {
   initMap();
   try {
     const manifest = await loadManifest();
-    document.title = manifest.title + " | SAIST";
+    const dates = manifestDates(manifest);
+    if (!dates.length) throw new Error("No grid dates in manifest.");
+
+    document.title = (manifest.title || "Bangladesh PM2.5") + " | SAIST";
+    el("date-range").textContent =
+      dates.length === 1
+        ? "Preview · " + formatMonthLabel(dates[0])
+        : formatMonthLabel(dates[0]) + "–" + formatMonthLabel(dates[dates.length - 1]);
+
     const sel = el("date-select");
     sel.innerHTML = "";
-    manifest.dates.forEach((d) => {
+    dates.forEach((d) => {
       const opt = document.createElement("option");
       opt.value = d;
-      opt.textContent = d;
+      opt.textContent = formatMonthLabel(d);
       sel.appendChild(opt);
     });
     sel.addEventListener("change", () => onDateChange(sel.value));
-    const defaultDate = manifest.default_date || manifest.dates[0];
+
+    const defaultDate = manifest.default_date || dates[0];
     sel.value = defaultDate;
     await onDateChange(defaultDate);
   } catch (err) {
-    el("load-status").textContent = err.message;
+    el("load-status").textContent = "Error: " + err.message;
+    console.error(err);
   }
 }
 

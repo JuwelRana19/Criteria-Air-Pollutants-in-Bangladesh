@@ -23,17 +23,17 @@
   <main class="layout">
     <aside class="sidebar">
       <section class="panel">
-        <h2>Daily PM2.5 distribution across Bangladesh</h2>
-        <label for="date-select">Select a date</label>
-        <select id="date-select" aria-label="Select date"></select>
+        <h2>Monthly PM2.5 on 1 km grid</h2>
+        <p id="date-range" class="date-range"></p>
+        <label for="date-select">Select month</label>
+        <select id="date-select" aria-label="Select month"></select>
         <div class="meta-grid">
           <div><span class="label">Latitude</span><span id="lat-val" class="value">—</span></div>
           <div><span class="label">Longitude</span><span id="lon-val" class="value">—</span></div>
           <div><span class="label">PM2.5</span><span id="pm-val" class="value">—</span></div>
         </div>
         <div id="month-stats" class="stats-box"></div>
-        <p class="hint">Move the cursor over the map to inspect grid-cell values. Monthly snapshots shown (SatPM monthly product).</p>
-        <p class="data-access">Dataset downloads are not provided on this site. To request the underlying data, email <a href="mailto:juwelrana@saistbd.org">juwelrana@saistbd.org</a>.</p>
+        <p class="hint">Move the cursor over the map to inspect grid-cell values. Preview month shown (SatPM monthly product).</p>
       </section>
       <section class="panel legend-panel">
         <h3>PM2.5 (µg/m³)</h3>
@@ -44,9 +44,8 @@
         <h3>About</h3>
         <p class="about-text">
           Interactive map of modelled fine particulate matter (PM<sub>2.5</sub>) on a ~1 km
-          Bangladesh grid. Built for the AP Exposure Surface project. Inspired by the
-          <a href="https://grasp.ldeo.columbia.edu/documents" target="_blank" rel="noopener">GRASP</a>
-          visualization framework.
+          Bangladesh grid. For district-level criteria pollutants (2018–2024), use the
+          <a href="district.html">64 districts map</a>.
         </p>
       </section>
     </aside>
@@ -55,13 +54,13 @@
   </main>
 
   <footer class="site-footer">
-    <span>© SAIST Foundation · AP Exposure Surface Bangladesh · Data on request: <a href="mailto:juwelrana@saistbd.org">juwelrana@saistbd.org</a></span>
+    <span>© SAIST Foundation · Criteria Air Pollutants in Bangladesh</span>
     <span id="load-status">Loading…</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-  <script src="assets/grid-data.js?v=bundled"></script>
-  <script src="assets/map.js"></script>
+  <script src="assets/grid-data.js?v=fixed"></script>
+  <script src="assets/map.js?v=fixed"></script>
 </body>
 </html>
