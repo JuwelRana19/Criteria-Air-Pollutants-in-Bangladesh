@@ -1,6 +1,6 @@
 # Six Criteria Air Pollutants Across Bangladesh
 
-Interactive web map of six criteria air pollutant exposure by district in Bangladesh, developed by the SAIST Foundation.
+Interactive web map of six criteria air pollutant exposure by district in Bangladesh, based on exposure surface data products developed by SAIST Foundation.
 
 ## Live map
 
@@ -10,7 +10,7 @@ Interactive web map of six criteria air pollutant exposure by district in Bangla
 
 ## Data access
 
-For inquiries regarding dataset access or potential collaboration, please contact Juwel Rana at **juwelrana@saistbd.org**.
+For inquiries regarding dataset access or potential collaboration, please contact **juwelrana@saistbd.org**.
 
 ## Local preview
 
