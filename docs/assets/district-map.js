@@ -133,15 +133,22 @@ async function loadMonthValues(dateIso) {
   return monthData;
 }
 
-function renderLegendScale(values) {
+function renderStats(values) {
   const nums = values
     .map((v) => v[currentPollutant])
     .filter((x) => x != null && isFinite(x));
   if (!nums.length) return;
-  colorMin = Math.min(...nums);
-  colorMax = Math.max(...nums);
-  el("leg-min").textContent = colorMin.toFixed(1);
-  el("leg-max").textContent = colorMax.toFixed(1);
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+  colorMin = min;
+  colorMax = max;
+  el("month-stats").innerHTML =
+    "<strong>National summary</strong><br/>Min " +
+    min.toFixed(1) + " · Mean " + mean.toFixed(1) + " · Max " + max.toFixed(1) +
+    " " + pollutantUnit();
+  el("leg-min").textContent = min.toFixed(1);
+  el("leg-max").textContent = max.toFixed(1);
   el("legend-title").textContent = pollutantLabel() + " (" + pollutantUnit() + ")";
   el("value-label").textContent = pollutantLabel();
 }
@@ -153,7 +160,7 @@ async function refreshMap() {
     loadMonthValues(dateIso)
   ]);
 
-  renderLegendScale(monthData.values);
+  renderStats(monthData.values);
 
   currentMonthLookup = Object.fromEntries(
     monthData.values.map((row) => [row.district_id, row])
