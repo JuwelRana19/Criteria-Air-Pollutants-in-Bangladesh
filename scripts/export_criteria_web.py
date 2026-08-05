@@ -124,7 +124,7 @@ def main() -> None:
     years = sorted(int(y) for y in df["year"].unique())
     manifest = {
         "title": "Bangladesh District Criteria Air Pollutants",
-        "subtitle": "64 districts · monthly · 2018–2024 · SAIST Foundation",
+        "subtitle": "64 districts · annual average · 2018–2024 · SAIST Foundation",
         "level": "district",
         "n_districts": int(df["district_id"].nunique()),
         "years": years,

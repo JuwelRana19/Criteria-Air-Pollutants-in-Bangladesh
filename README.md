@@ -4,7 +4,7 @@ Interactive web map of six criteria air pollutant exposure by district in Bangla
 
 ## Live map
 
-**District map (64 districts, monthly, 2018–2024):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
+**District map (64 districts, annual average, 2018–2024):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
 
 **Team members:** [team.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/team.html)
 
@@ -27,6 +27,6 @@ python -m http.server 8080
 Export flow:
 
 1. `export_criteria_web.py` → writes JSON to `docs/data/criteria/` (local, gitignored)
-2. `bundle_web_data.py` → bundles JSON into `docs/assets/district-data.js` for GitHub Pages
+2. `bundle_web_data.py` → aggregates monthly JSON to **annual averages** in `docs/assets/district-data.js` for GitHub Pages
 
 © Juwel Rana · SAIST Foundation

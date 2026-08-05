@@ -1,15 +1,10 @@
-/* District choropleth — 6 criteria pollutants (2018–2024) */
+/* District choropleth — 6 criteria pollutants (2018–2024, annual averages) */
 
 const BOUNDARIES_URL = "data/district/boundaries.geojson";
 const BGD_CENTER = [23.685, 90.356];
 const BGD_ZOOM = 7;
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
 
 let map, districtLayer, manifestCache = null, boundariesCache = null;
-let datesByYear = {};
 let currentPollutant = "pm25";
 let pollutantMeta = {};
 let colorMin = 0, colorMax = 100;
@@ -36,36 +31,8 @@ function colorScale(v, minV, maxV) {
   return `rgb(${Math.round(a[0] + f * (b[0] - a[0]))},${Math.round(a[1] + f * (b[1] - a[1]))},${Math.round(a[2] + f * (b[2] - a[2]))})`;
 }
 
-function selectedDateIso() {
-  const y = el("year-select").value;
-  const m = el("month-select").value;
-  return `${y}-${m}-01`;
-}
-
-function parseDates(manifest) {
-  datesByYear = {};
-  manifest.dates.forEach((d) => {
-    const [y, m] = d.split("-");
-    if (!datesByYear[y]) datesByYear[y] = [];
-    datesByYear[y].push({ iso: d, month: m });
-  });
-  Object.keys(datesByYear).forEach((y) => {
-    datesByYear[y].sort((a, b) => a.month.localeCompare(b.month));
-  });
-}
-
-function fillMonthOptions(year) {
-  const monthSel = el("month-select");
-  const prev = monthSel.value;
-  monthSel.innerHTML = "";
-  (datesByYear[year] || []).forEach(({ month }) => {
-    const opt = document.createElement("option");
-    opt.value = month;
-    opt.textContent = MONTH_NAMES[Number(month) - 1];
-    monthSel.appendChild(opt);
-  });
-  const months = datesByYear[year] || [];
-  if (months.some((m) => m.month === prev)) monthSel.value = prev;
+function selectedYear() {
+  return el("year-select").value;
 }
 
 function pollutantUnit() {
@@ -84,7 +51,6 @@ async function loadManifest() {
   manifestCache.pollutants.forEach((p) => {
     pollutantMeta[p.id] = p;
   });
-  parseDates(manifestCache);
   return manifestCache;
 }
 
@@ -124,7 +90,7 @@ function popupContent(p, v) {
     "<div class=\"district-popup\">" +
     "<strong>" + (p.district || "—") + "</strong><br/>" +
     (p.division || "—") + "<br/>" +
-    "<span class=\"district-popup-value\">" + pollutantLabel() + ": " + val + "</span>" +
+    "<span class=\"district-popup-value\">" + pollutantLabel() + " (annual mean): " + val + "</span>" +
     "</div>"
   );
 }
@@ -164,12 +130,12 @@ function onEachFeature(feature, layer) {
   });
 }
 
-async function loadMonthValues(dateIso) {
-  el("load-status").textContent = "Loading " + dateIso.slice(0, 7) + "…";
+async function loadYearValues(year) {
+  el("load-status").textContent = "Loading " + year + "…";
   const bundle = window.__DISTRICT_MAP_BUNDLE__;
-  const monthData = bundle?.months?.[dateIso];
-  if (!monthData) throw new Error("No data for " + dateIso.slice(0, 7));
-  return monthData;
+  const yearData = bundle?.years?.[String(year)];
+  if (!yearData) throw new Error("No data for " + year);
+  return yearData;
 }
 
 function renderStats(values) {
@@ -183,7 +149,7 @@ function renderStats(values) {
   colorMin = min;
   colorMax = max;
   el("month-stats").innerHTML =
-    "<strong>National summary</strong><br/>Min " +
+    "<strong>National summary</strong> (annual mean)<br/>Min " +
     min.toFixed(1) + " · Mean " + mean.toFixed(1) + " · Max " + max.toFixed(1) +
     " " + pollutantUnit();
   el("leg-min").textContent = min.toFixed(1);
@@ -193,15 +159,15 @@ function renderStats(values) {
 }
 
 async function refreshMap() {
-  const dateIso = selectedDateIso();
-  const [boundaries, monthData] = await Promise.all([
+  const year = selectedYear();
+  const [boundaries, yearData] = await Promise.all([
     loadBoundaries(),
-    loadMonthValues(dateIso)
+    loadYearValues(year)
   ]);
 
-  renderStats(monthData.values);
+  renderStats(yearData.values);
 
-  const byId = Object.fromEntries(monthData.values.map((row) => [row.district_id, row]));
+  const byId = Object.fromEntries(yearData.values.map((row) => [row.district_id, row]));
 
   const geo = {
     type: "FeatureCollection",
@@ -232,7 +198,7 @@ async function refreshMap() {
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20] });
   map.invalidateSize();
   el("load-status").textContent =
-    geo.features.length + " districts · " + pollutantLabel() + " · " + dateIso.slice(0, 7);
+    geo.features.length + " districts · " + pollutantLabel() + " · " + year + " (annual)";
 }
 
 function initMap() {
@@ -263,7 +229,7 @@ async function init() {
       refreshMap().catch(showError);
     };
 
-    const years = Object.keys(datesByYear).sort();
+    const years = (manifest.years || []).map(String).sort();
     const yearSel = el("year-select");
     yearSel.innerHTML = "";
     years.forEach((y) => {
@@ -273,20 +239,11 @@ async function init() {
       yearSel.appendChild(opt);
     });
 
-    const defaultDate = manifest.default_date || manifest.dates[0];
-    const [defY, defM] = defaultDate.split("-");
-    yearSel.value = defY;
-    fillMonthOptions(defY);
-    el("month-select").value = defM;
-
+    yearSel.value = String(manifest.default_year || years[0]);
     el("date-range").textContent =
-      years[0] + "–" + years[years.length - 1] + " · " + manifest.dates.length + " months";
+      years[0] + "–" + years[years.length - 1] + " · annual averages";
 
-    yearSel.onchange = () => {
-      fillMonthOptions(yearSel.value);
-      refreshMap().catch(showError);
-    };
-    el("month-select").onchange = () => refreshMap().catch(showError);
+    yearSel.onchange = () => refreshMap().catch(showError);
 
     await refreshMap();
   } catch (err) {

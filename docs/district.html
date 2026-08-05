@@ -11,7 +11,7 @@
   <header class="site-header">
     <div class="brand">
       <h1>Bangladesh District Air Pollutants</h1>
-      <p class="subtitle">64 districts · monthly · 2018–2024 · SAIST Foundation</p>
+      <p class="subtitle">64 districts · annual average · 2018–2024 · SAIST Foundation</p>
     </div>
     <nav class="site-nav" aria-label="Site sections">
       <a href="district.html" class="nav-tab active" aria-current="page">Map</a>
@@ -23,27 +23,19 @@
   <main class="layout">
     <aside class="sidebar">
       <section class="panel">
-        <h2>Monthly pollutants by district</h2>
+        <h2>Annual pollutants by district</h2>
         <p id="date-range" class="date-range"></p>
         <label for="pollutant-select">Pollutant</label>
         <select id="pollutant-select" aria-label="Select pollutant"></select>
-        <div class="date-row">
-          <div>
-            <label for="year-select">Year</label>
-            <select id="year-select" aria-label="Select year"></select>
-          </div>
-          <div>
-            <label for="month-select">Month</label>
-            <select id="month-select" aria-label="Select month"></select>
-          </div>
-        </div>
+        <label for="year-select">Year</label>
+        <select id="year-select" aria-label="Select year"></select>
         <div class="meta-grid">
           <div><span class="label">District</span><span id="district-val" class="value">—</span></div>
           <div><span class="label">Division</span><span id="division-val" class="value">—</span></div>
           <div><span class="label" id="value-label">Value</span><span id="pm-val" class="value">—</span></div>
         </div>
         <div id="month-stats" class="stats-box"></div>
-        <p class="hint">Click a district for details. District-level monthly mean concentrations.</p>
+        <p class="hint">Click a district for details. District-level annual mean concentrations.</p>
         <p class="data-access">This interactive map was based on six criteria pollutants exposure surface data products developed by the <a href="https://www.saistbd.org/" target="_blank" rel="noopener">South Asian Institute for Social Transformation (SAIST)</a>. For inquiries regarding dataset access or potential collaboration, please contact <a href="mailto:juwelrana@saistbd.org">juwelrana@saistbd.org</a>.</p>
       </section>
       <section class="panel legend-panel">
@@ -61,7 +53,7 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/district-data.js?v=bundled"></script>
-  <script src="assets/district-map.js?v=no-divisions"></script>
+  <script src="assets/district-data.js?v=annual"></script>
+  <script src="assets/district-map.js?v=annual"></script>
 </body>
 </html>
