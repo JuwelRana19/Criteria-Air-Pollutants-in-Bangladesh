@@ -1,7 +1,6 @@
 /* District choropleth — 6 criteria pollutants (2018–2024) */
 
 const BOUNDARIES_URL = "data/district/boundaries.geojson";
-const DIVISIONS_URL = "data/district/divisions.geojson";
 const BGD_CENTER = [23.685, 90.356];
 const BGD_ZOOM = 7;
 const MONTH_NAMES = [
@@ -9,8 +8,7 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-let map, districtLayer, divisionLayer = null, manifestCache = null, boundariesCache = null;
-let divisionsCache = null;
+let map, districtLayer, manifestCache = null, boundariesCache = null;
 let datesByYear = {};
 let currentPollutant = "pm25";
 let pollutantMeta = {};
@@ -98,27 +96,6 @@ async function loadBoundaries() {
   return boundariesCache;
 }
 
-async function loadDivisions() {
-  if (divisionsCache) return divisionsCache;
-  const res = await fetch(DIVISIONS_URL);
-  if (!res.ok) throw new Error("Missing division boundaries file.");
-  divisionsCache = await res.json();
-  return divisionsCache;
-}
-
-function renderDivisionBoundaries(geo) {
-  if (divisionLayer) map.removeLayer(divisionLayer);
-  divisionLayer = L.geoJSON(geo, {
-    style: {
-      fillOpacity: 0,
-      color: "#0f172a",
-      weight: 2.8,
-      opacity: 0.92
-    },
-    interactive: false
-  }).addTo(map);
-}
-
 function getValue(props) {
   const v = parseFloat(props._v);
   return isFinite(v) ? v : null;
@@ -168,7 +145,6 @@ function selectDistrict(layer, p, v) {
   layer.setPopupContent(popupContent(p, v));
   layer.openPopup();
   updateSidebar(p, v);
-  if (divisionLayer) divisionLayer.bringToFront();
 }
 
 function onEachFeature(feature, layer) {
@@ -252,9 +228,6 @@ async function refreshMap() {
     onEachFeature: onEachFeature
   }).addTo(map);
 
-  if (divisionsCache) renderDivisionBoundaries(divisionsCache);
-  if (divisionLayer) divisionLayer.bringToFront();
-
   const bounds = districtLayer.getBounds();
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20] });
   map.invalidateSize();
@@ -316,9 +289,6 @@ async function init() {
     el("month-select").onchange = () => refreshMap().catch(showError);
 
     await refreshMap();
-    loadDivisions()
-      .then(renderDivisionBoundaries)
-      .catch((err) => console.warn("Division boundaries:", err.message));
   } catch (err) {
     showError(err.message || String(err));
   }

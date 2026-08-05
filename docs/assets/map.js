@@ -1,7 +1,6 @@
 /* Bangladesh PM2.5 interactive map — 1 km grid viewer */
 
 const DATA_BASE = "data/";
-const DIVISIONS_URL = "data/district/divisions.geojson";
 const BGD_CENTER = [23.685, 90.356];
 const BGD_ZOOM = 7;
 const MONTH_NAMES = [
@@ -9,7 +8,7 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-let map, heatLayer, boundaryLayer, divisionLayer = null, currentData = null;
+let map, heatLayer, boundaryLayer, currentData = null;
 let colorMin = 15, colorMax = 80;
 let spatialIndex = null;
 
@@ -77,7 +76,6 @@ function buildHeatLayer(data) {
 
   currentData = data;
   spatialIndex = buildSpatialIndex(data);
-  if (divisionLayer) divisionLayer.bringToFront();
   if (boundaryLayer) boundaryLayer.bringToFront();
 }
 
@@ -145,22 +143,6 @@ function initMap() {
           style: { color: "#0f2940", weight: 2, fillOpacity: 0 }
         }).addTo(map);
       }
-    })
-    .catch(() => {});
-
-  fetch(DIVISIONS_URL)
-    .then((r) => (r.ok ? r.json() : null))
-    .then((geo) => {
-      if (!geo) return;
-      divisionLayer = L.geoJSON(geo, {
-        style: {
-          fillOpacity: 0,
-          color: "#0f172a",
-          weight: 2.8,
-          opacity: 0.92
-        },
-        interactive: false
-      }).addTo(map);
     })
     .catch(() => {});
 
