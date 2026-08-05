@@ -1,15 +1,14 @@
 # Six Criteria Air Pollutants Across Bangladesh
 
-Interactive web maps of six criteria air pollutant exposure in Bangladesh, developed by the SAIST Foundation.
+Interactive web map of six criteria air pollutant exposure by district in Bangladesh, developed by the SAIST Foundation.
 
-## Live maps
+## Live map
 
-- **District map (64 districts, monthly):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
-- **1 km grid map (preview):** [index.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/)
+**District map (64 districts, monthly, 2018–2024):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
 
 ## Data access
 
-The maps are for **visual exploration only**. Downloadable datasets (CSV/RDS/GeoJSON exports) are **not** published in this repository.
+The map is for **visual exploration only**. Downloadable datasets (CSV/RDS/GeoJSON exports) are **not** published in this repository.
 
 To request the underlying data, contact **juwelrana@saistbd.org**.
 
@@ -32,6 +31,6 @@ Extraction and export scripts live in the private [AP-Exposure-Surface-BD](https
 Export flow:
 
 1. `export_criteria_web.py` → writes JSON to `docs/data/criteria/` (local, gitignored)
-2. `bundle_web_data.py` → bundles JSON into `docs/assets/*-data.js` for GitHub Pages
+2. `bundle_web_data.py` → bundles JSON into `docs/assets/district-data.js` for GitHub Pages
 
 © Juwel Rana · SAIST Foundation
