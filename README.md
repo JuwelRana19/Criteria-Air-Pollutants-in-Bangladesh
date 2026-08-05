@@ -1,4 +1,4 @@
-# Criteria Air Pollutants in Bangladesh
+# Six Criteria Air Pollutants Across Bangladesh
 
 Interactive web maps of PM2.5 exposure in Bangladesh, developed by the SAIST Foundation.
 
@@ -7,7 +7,7 @@ Interactive web maps of PM2.5 exposure in Bangladesh, developed by the SAIST Fou
 - **District map (64 districts, monthly):** [district.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/district.html)
 - **1 km grid map (preview):** [index.html](https://juwelrana19.github.io/Criteria-Air-Pollutants-in-Bangladesh/)
 
-Data: SatPM V6GL03 (ACAG) area-weighted district means.
+**Data:** 1KM Gridded Exposure Surface Developed by Juwel Rana and his SAIST Team
 
 ## Local preview
 
@@ -20,4 +20,4 @@ Open http://localhost:8080/district.html
 
 ## Data pipeline
 
-Extraction and export scripts live in the private [AP-Exposure-Surface-BD](https://github.com/JuwelRana19/AP-Exposure-Surface-BD) repository.
+
