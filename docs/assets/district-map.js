@@ -13,7 +13,6 @@ let datesByYear = {};
 let currentPollutant = "pm25";
 let pollutantMeta = {};
 let colorMin = 0, colorMax = 100;
-let currentMonthLookup = {};
 
 const el = (id) => document.getElementById(id);
 
@@ -114,14 +113,15 @@ function styleFeature(feature) {
 
 function onEachFeature(feature, layer) {
   const p = feature.properties;
-  layer.bindTooltip(`<strong>${p.district || "—"}</strong>`, { sticky: true });
+  const v = getValue(p);
+  layer.bindTooltip(
+    `<strong>${p.district || "—"}</strong><br/>${v != null ? v.toFixed(1) + " " + pollutantUnit() : "no data"}`,
+    { sticky: true }
+  );
   layer.on("click", () => {
-    const row = currentMonthLookup[p.district_id];
-    const v = row?.[currentPollutant];
     el("district-val").textContent = p.district || "—";
     el("division-val").textContent = p.division || "—";
-    el("pm-val").textContent =
-      v != null && isFinite(v) ? v.toFixed(1) + " " + pollutantUnit() : "—";
+    el("pm-val").textContent = v != null ? v.toFixed(1) + " " + pollutantUnit() : "—";
   });
 }
 
@@ -162,11 +162,7 @@ async function refreshMap() {
 
   renderStats(monthData.values);
 
-  currentMonthLookup = Object.fromEntries(
-    monthData.values.map((row) => [row.district_id, row])
-  );
-
-  const byId = currentMonthLookup;
+  const byId = Object.fromEntries(monthData.values.map((row) => [row.district_id, row]));
 
   const geo = {
     type: "FeatureCollection",
@@ -224,9 +220,6 @@ async function init() {
     polSel.value = currentPollutant;
     polSel.onchange = () => {
       currentPollutant = polSel.value;
-      el("district-val").textContent = "—";
-      el("division-val").textContent = "—";
-      el("pm-val").textContent = "—";
       refreshMap().catch(showError);
     };
 
@@ -251,17 +244,9 @@ async function init() {
 
     yearSel.onchange = () => {
       fillMonthOptions(yearSel.value);
-      el("district-val").textContent = "—";
-      el("division-val").textContent = "—";
-      el("pm-val").textContent = "—";
       refreshMap().catch(showError);
     };
-    el("month-select").onchange = () => {
-      el("district-val").textContent = "—";
-      el("division-val").textContent = "—";
-      el("pm-val").textContent = "—";
-      refreshMap().catch(showError);
-    };
+    el("month-select").onchange = () => refreshMap().catch(showError);
 
     await refreshMap();
   } catch (err) {
